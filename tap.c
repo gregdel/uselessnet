@@ -1,3 +1,5 @@
+#include <errno.h>
+
 #include "tap.h"
 
 int tap_alloc(char *dev)
@@ -38,7 +40,7 @@ int tap_close(int fd) {
 
 int tun_read(int fd, void *buf, size_t count) {
 	int r = read(fd, buf, count);
-	if (r < 0) {
+	if (r == -1 && errno != EINTR) {
 		perror("tun: failed to read");
 	}
 	return r;
