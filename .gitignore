@@ -1,2 +1,3 @@
 cscope*
-tap
+*.o
+uselessnet
