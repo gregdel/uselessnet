@@ -1,11 +1,15 @@
 #include <errno.h>
 #include <signal.h>
+#include <stdint.h>
 #include <stdio.h>
+#include <string.h>
 
+#include <arpa/inet.h>
 #include <linux/if.h>
+#include <linux/if_arp.h>
 #include <net/ethernet.h>
-#include <netinet/ether.h>
 
+#include "arp.h"
 #include "tap.h"
 #include "utils.h"
 
@@ -20,10 +24,11 @@ void sighandler(int signo) {
 	}
 }
 
-void handle_frame(size_t size, const char *buff) {
-	printf("Read %li bytes / buff %li\n", size, sizeof(buff));
+void handle_frame(size_t size, unsigned char *buff) {
+	/* printf("Read %li bytes\n", size); */
 
-	if (size < ETHER_MIN_LEN) {
+	/* if (size < ETHER_MIN_LEN) { */
+	if (size < 0) {
 		printf("Invalid packet size: %li\n", size);
 		return;
 	}
@@ -31,12 +36,24 @@ void handle_frame(size_t size, const char *buff) {
 	// parse the headers
 	struct ethhdr *hdr = (struct ethhdr *) buff;
 
-	char p_mac[18];
-	pretty_mac(p_mac, hdr->h_source);
-	printf("src mac: %s\n", p_mac);
-	pretty_mac(p_mac, hdr->h_dest);
-	printf("dest mac: %s\n", p_mac);
-	printf("--------------\n");
+	switch(ntohs(hdr->h_proto)) {
+		case ETHERTYPE_IPV6:
+		      /* printf("IPv6 frame, skipping\n"); */
+		      return;
+		case ETHERTYPE_ARP:
+		      printf("ARP frame !\n");
+		      handle_arp(buff);
+		      break;
+		case ETHERTYPE_IP:
+		      /* printf("IP frame !"); */
+		      break;
+		default:
+		      printf("src mac: ");
+		      print_mac(hdr->h_source);
+		      printf("dest mac: ");
+		      print_mac(hdr->h_dest);
+	}
+
 }
 
 int main(void) {
@@ -60,12 +77,9 @@ int main(void) {
 	sigaction(SIGINT, &sa, NULL);
 
 	printf("Reading...\n");
-	char buff[PKT_BUFFER_SZ];
+	unsigned char buff[PKT_BUFFER_SZ];
 	size_t pkt_read;
-	int i = 0;
 	while (tap_continue) {
-		i++;
-		printf("Loop %d\n", i);
 		pkt_read = tun_read(tap_fd, buff, sizeof(buff));
 		if (pkt_read == -1) {
 			continue;

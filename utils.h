@@ -2,4 +2,5 @@
 
 #include <linux/if_ether.h>
 
-void pretty_mac(char *straddr, unsigned char mac[ETH_ALEN]);
+void print_mac(unsigned char mac[ETH_ALEN]);
+void print_ip(unsigned char ip[4]);

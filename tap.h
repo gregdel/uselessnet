@@ -6,4 +6,4 @@
 
 int tap_alloc(char *dev);
 int tap_close(int fd);
-int tun_read(int fd, void *buf, size_t count);
+int tun_read(int fd, unsigned char *buf, size_t count);

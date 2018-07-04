@@ -49,7 +49,7 @@ int tap_close(int fd) {
 	return err;
 }
 
-int tun_read(int fd, void *buf, size_t count) {
+int tun_read(int fd, unsigned char *buf, size_t count) {
 	int r = read(fd, buf, count);
 	if (r == -1 && errno != EINTR) {
 		perror("tun: failed to read");
