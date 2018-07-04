@@ -1,14 +1,6 @@
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
+#pragma once
 
-#include <fcntl.h>
-#include <sys/ioctl.h>
-#include <sys/stat.h>
 #include <sys/types.h>
-
-#include <linux/if.h>
-#include <linux/if_tun.h>
 
 #define TAP_PATH "/dev/net/tun"
 

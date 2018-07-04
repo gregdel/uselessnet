@@ -1,5 +1,3 @@
-#define __USE_GNU
-
 #include <netinet/ether.h>
 
 #include "utils.h"
